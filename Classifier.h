@@ -4,10 +4,8 @@
  * 实体类有一些属性:
  * - 属性可能是基本类型,也可能是自定义的复合类型;
  * - 属性可能是离散的,也可能是连续的.
- * - 对于一个针对某类实体对象的分类器,有一个(离散的)属性作为分类目标.
  *
- * 对于应用程序,需要将实体类中的各属性(作为属性或者分类)注册到分类器中.
- * 作为属性注册时,需要指明该属性是离散的还是连续的.
+ * 对于应用程序,需要将实体类中的各属性注册到分类器中.
  */
 #ifndef _CLASSIFIER_H_
 #define _CLASSIFIER_H_
@@ -15,6 +13,8 @@
 #include <string>
 #include <map>
 #include <boost/shared_ptr.hpp>
+
+struct Property;
 
 template<typename PropertyT>
 struct PropertyComparator
@@ -30,6 +30,11 @@ struct ResultComparator : PropertyComparator<ResultT>
 {
 };
 
+/*
+ * ObjT : 待分类的实体类;
+ * ResultT/ResultComparatorT : 分类的结果及其比较器;
+ * ClassifierImplementor : 分类的具体实现.
+ */
 template<
 	typename ObjT, 
 	typename ResultT, 
@@ -87,9 +92,9 @@ public:
 
 private:
 	ResultComparatorT _result_comparator;
-	//std::map<std::string, > _discrete_properties; // 离散属性
-	//std::map<std::string, > _continous_properties; // 连续属性
 	ClassifierImplementor _implementor;
+	std::map<std::string, boost::shared_ptr<Property> > _continous_properties; // 连续属性
+	std::map<std::string, boost::shared_ptr<Property> > _discrete_properties; // 离散属性
 };
 
 #include "ClassifierImpl.h"
