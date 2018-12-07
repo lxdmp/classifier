@@ -33,14 +33,9 @@ struct ResultComparator : PropertyComparator<ResultT>
 
 /*
  * ObjT : 待分类的实体类;
- * ResultT/ResultComparatorT : 分类的结果及其比较器;
- * ClassifierImplementor : 分类的具体实现.
+ * ResultT/ResultComparatorT : 分类的结果及其比较器.
  */
-template<
-	typename ObjT, 
-	typename ResultT, 
-	typename ResultComparatorT/*=ResultComparator*/, 
-	typename ClassifierImplementor>
+template<typename ObjT, typename ResultT, typename ResultComparatorT>
 class Classifier
 {
 public:
@@ -75,6 +70,7 @@ public:
 	/*
 	 * 获取属性
 	 */
+protected:
 	boost::shared_ptr<Property> getProperty(const std::string &property_name) const;
 	std::set<boost::shared_ptr<Property> > getContinousProperties() const;
 	std::set<boost::shared_ptr<Property> > getDiscreteProperties() const;
@@ -95,16 +91,17 @@ public:
 	/*
 	 * 训练&分类
 	 */
-	void train();
-	ResultT classify(const ObjT &obj) const;
+	virtual void train() = 0;
+	virtual ResultT classify(const ObjT &obj) const = 0;
 
 protected:
 	ResultComparatorT _result_comparator;
-	ClassifierImplementor _implementor;
 	std::map<std::string, boost::shared_ptr<Property> > _properties; // 属性
 };
 
 #include "ClassifierImpl.h"
+
+#include "C45Tree.h"
 
 #endif
 

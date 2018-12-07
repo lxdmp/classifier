@@ -55,19 +55,18 @@ struct DiscreteProperty : ContinousProperty<ObjT, PropertyT, PropertyGetterT>
 /*
  * 构造
  */
-template<typename ObjT, typename ResultT, typename ResultComparatorT, typename ClassifierImplementor>
-Classifier<ObjT,ResultT,ResultComparatorT,ClassifierImplementor>::Classifier() : 
-	_result_comparator(ResultComparatorT()), 
-	_implementor(*this)
+template<typename ObjT, typename ResultT, typename ResultComparatorT>
+Classifier<ObjT,ResultT,ResultComparatorT>::Classifier() : 
+	_result_comparator(ResultComparatorT())
 {
 }
 
 /*
  * 注册实体类某项(离散的)属性
  */
-template<typename ObjT, typename ResultT, typename ResultComparatorT, typename ClassifierImplementor>
+template<typename ObjT, typename ResultT, typename ResultComparatorT>
 template<typename PropertyT, typename PropertyGetterT, typename PropertyComparatorT>
-void Classifier<ObjT,ResultT,ResultComparatorT,ClassifierImplementor>::regDiscreteProperty(
+void Classifier<ObjT,ResultT,ResultComparatorT>::regDiscreteProperty(
 	std::string propertyName, PropertyGetterT getter
 )
 {
@@ -85,9 +84,9 @@ void Classifier<ObjT,ResultT,ResultComparatorT,ClassifierImplementor>::regDiscre
 /*
  * 注册实体类某项(连续的)属性
  */
-template<typename ObjT, typename ResultT, typename ResultComparatorT, typename ClassifierImplementor>
+template<typename ObjT, typename ResultT, typename ResultComparatorT>
 template<typename PropertyT, typename PropertyGetterT>
-void Classifier<ObjT,ResultT,ResultComparatorT,ClassifierImplementor>::regContinousProperty(
+void Classifier<ObjT,ResultT,ResultComparatorT>::regContinousProperty(
 	std::string propertyName, PropertyGetterT getter
 )
 {
@@ -105,8 +104,8 @@ void Classifier<ObjT,ResultT,ResultComparatorT,ClassifierImplementor>::regContin
 /*
  * 获取属性
  */
-template<typename ObjT, typename ResultT, typename ResultComparatorT, typename ClassifierImplementor>
-boost::shared_ptr<Property> Classifier<ObjT,ResultT,ResultComparatorT,ClassifierImplementor>::getProperty(
+template<typename ObjT, typename ResultT, typename ResultComparatorT>
+boost::shared_ptr<Property> Classifier<ObjT,ResultT,ResultComparatorT>::getProperty(
 	const std::string &property_name
 ) const
 {
@@ -117,8 +116,8 @@ boost::shared_ptr<Property> Classifier<ObjT,ResultT,ResultComparatorT,Classifier
 	return ret;
 }
 
-template<typename ObjT, typename ResultT, typename ResultComparatorT, typename ClassifierImplementor>
-std::set<boost::shared_ptr<Property> > Classifier<ObjT,ResultT,ResultComparatorT,ClassifierImplementor>::getContinousProperties(
+template<typename ObjT, typename ResultT, typename ResultComparatorT>
+std::set<boost::shared_ptr<Property> > Classifier<ObjT,ResultT,ResultComparatorT>::getContinousProperties(
 ) const
 {
 	std::set<boost::shared_ptr<Property> > ret;
@@ -129,8 +128,8 @@ std::set<boost::shared_ptr<Property> > Classifier<ObjT,ResultT,ResultComparatorT
 	return ret;
 }
 
-template<typename ObjT, typename ResultT, typename ResultComparatorT, typename ClassifierImplementor>
-std::set<boost::shared_ptr<Property> > Classifier<ObjT,ResultT,ResultComparatorT,ClassifierImplementor>::getDiscreteProperties(
+template<typename ObjT, typename ResultT, typename ResultComparatorT>
+std::set<boost::shared_ptr<Property> > Classifier<ObjT,ResultT,ResultComparatorT>::getDiscreteProperties(
 ) const
 {
 	std::set<boost::shared_ptr<Property> > ret;
@@ -144,38 +143,22 @@ std::set<boost::shared_ptr<Property> > Classifier<ObjT,ResultT,ResultComparatorT
 /*
  * 添加已分类的数据
  */
-template<typename ObjT, typename ResultT, typename ResultComparatorT, typename ClassifierImplementor>
-void Classifier<ObjT,ResultT,ResultComparatorT,ClassifierImplementor>::addSample(
+template<typename ObjT, typename ResultT, typename ResultComparatorT>
+void Classifier<ObjT,ResultT,ResultComparatorT>::addSample(
 	const ObjT &sample, const ResultT &result
 )
 {
 }
 
-template<typename ObjT, typename ResultT, typename ResultComparatorT, typename ClassifierImplementor>
+template<typename ObjT, typename ResultT, typename ResultComparatorT>
 template<typename SampleIteratorT, typename ResultIteratorT>
-void Classifier<ObjT,ResultT,ResultComparatorT,ClassifierImplementor>::addSamples(
+void Classifier<ObjT,ResultT,ResultComparatorT>::addSamples(
 	SampleIteratorT sampleBegin, SampleIteratorT sampleEnd, 
 	ResultIteratorT resultBegin, ResultIteratorT resultEnd
 )
 {
 	for(; sampleBegin!=sampleEnd && resultBegin!=resultEnd; ++sampleBegin, ++resultBegin)
 		this->addSample(*sampleBegin, *resultBegin);
-}
-
-/*
- * 训练&分类
- */
-template<typename ObjT, typename ResultT, typename ResultComparatorT, typename ClassifierImplementor>
-void Classifier<ObjT,ResultT,ResultComparatorT,ClassifierImplementor>::train()
-{
-	_implementor.train();
-}
-
-
-template<typename ObjT, typename ResultT, typename ResultComparatorT, typename ClassifierImplementor>
-ResultT Classifier<ObjT,ResultT,ResultComparatorT,ClassifierImplementor>::classify(const ObjT &obj) const
-{
-	return ResultT();
 }
 
 #endif
