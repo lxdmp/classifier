@@ -12,6 +12,7 @@
 
 #include <string>
 #include <map>
+#include <set>
 #include <boost/shared_ptr.hpp>
 
 struct Property;
@@ -71,6 +72,13 @@ public:
 	template<typename PropertyT, typename PropertyGetterT>
 	void regContinousProperty(std::string propertyName, PropertyGetterT getter);
 
+	/*
+	 * 获取属性
+	 */
+	boost::shared_ptr<Property> getProperty(const std::string &property_name) const;
+	std::set<boost::shared_ptr<Property> > getContinousProperties() const;
+	std::set<boost::shared_ptr<Property> > getDiscreteProperties() const;
+
 public:
 	/*
 	 * 添加已分类的数据
@@ -90,11 +98,10 @@ public:
 	void train();
 	ResultT classify(const ObjT &obj) const;
 
-private:
+protected:
 	ResultComparatorT _result_comparator;
 	ClassifierImplementor _implementor;
-	std::map<std::string, boost::shared_ptr<Property> > _continous_properties; // 连续属性
-	std::map<std::string, boost::shared_ptr<Property> > _discrete_properties; // 离散属性
+	std::map<std::string, boost::shared_ptr<Property> > _properties; // 属性
 };
 
 #include "ClassifierImpl.h"

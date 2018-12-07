@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <typeinfo>
+#include <boost/filesystem.hpp>
 
 template<typename PropertyT, typename PropertyGetterT, typename ComparatorT=std::string>
 void regProperty(std::string propertyName, PropertyGetterT getter)
@@ -28,6 +29,8 @@ int main()
 	int val = 1;
 	regProperty<test_t>("abc", val);
 	std::cout<<&test_t::func<<std::endl;
+	//char c = boost::filesystem::path::preferred_separator;
+	//printf("%c\n", c);
 	return 0;
 }
 

@@ -9,16 +9,23 @@
  */
 struct Property
 {
-	Property(const std::string &property_name) : _property_name(property_name){}
-	std::string _property_name; // 属性名
+	Property(const std::string &property_name, bool is_continous) : 
+		_property_name(property_name), 
+		_is_continous(is_continous)
+	{
+	}
 
-	virtual boost::any property_cast(boost::any obj_ptr) = 0;
+	virtual boost::any property_cast(boost::any obj_ptr) = 0; // 获取对象实例的该项属性
+
+	std::string _property_name; // 属性名
+	bool _is_continous; // 是否连续属性
 };
 
 template<typename ObjT, typename PropertyT, typename PropertyGetterT>
 struct ContinousProperty : Property
 {
-	ContinousProperty(const std::string &property_name) : Property(property_name), 
+	ContinousProperty(const std::string &property_name, bool is_continous=true) : 
+		Property(property_name, is_continous), 
 		_getter(&ObjT::PropertyGetterT)
 	{
 	}
@@ -37,7 +44,7 @@ template<typename ObjT, typename PropertyT, typename PropertyGetterT, typename P
 struct DiscreteProperty : ContinousProperty<ObjT, PropertyT, PropertyGetterT>
 {
 	DiscreteProperty(const std::string &property_name) : 
-		ContinousProperty<ObjT, PropertyT, PropertyGetterT>(property_name), 
+		ContinousProperty<ObjT, PropertyT, PropertyGetterT>(property_name, false), 
 		_property_comparator(PropertyComparatorT())
 	{
 	}
@@ -67,7 +74,7 @@ void Classifier<ObjT,ResultT,ResultComparatorT,ClassifierImplementor>::regDiscre
 	boost::shared_ptr<Property> property(
 		new DiscreteProperty<ObjT, PropertyT, PropertyGetterT, PropertyComparatorT>(propertyName)
 	);
-	auto insert_result = this->_discrete_properties.insert(std::make_pair(propertyName, property));
+	auto insert_result = this->_properties.insert(std::make_pair(propertyName, property));
 	if(!insert_result.second){
 		std::stringstream s;
 		s<<"duplicate property name \""<<propertyName<<"\"";
@@ -87,12 +94,51 @@ void Classifier<ObjT,ResultT,ResultComparatorT,ClassifierImplementor>::regContin
 	boost::shared_ptr<Property> property(
 		new ContinousProperty<ObjT, PropertyT, PropertyGetterT>(propertyName)
 	);
-	auto insert_result = this->_continous_properties.insert(std::make_pair(propertyName, property));
+	auto insert_result = this->_properties.insert(std::make_pair(propertyName, property));
 	if(!insert_result.second){
 		std::stringstream s;
 		s<<"duplicate property name \""<<propertyName<<"\"";
 		throw std::runtime_error(s.str().c_str());
 	}
+}
+
+/*
+ * 获取属性
+ */
+template<typename ObjT, typename ResultT, typename ResultComparatorT, typename ClassifierImplementor>
+boost::shared_ptr<Property> Classifier<ObjT,ResultT,ResultComparatorT,ClassifierImplementor>::getProperty(
+	const std::string &property_name
+) const
+{
+	boost::shared_ptr<Property> ret;
+	auto query_iter=  _properties.find(property_name);
+	if(query_iter!=_properties.end())
+		ret = query_iter->second;
+	return ret;
+}
+
+template<typename ObjT, typename ResultT, typename ResultComparatorT, typename ClassifierImplementor>
+std::set<boost::shared_ptr<Property> > Classifier<ObjT,ResultT,ResultComparatorT,ClassifierImplementor>::getContinousProperties(
+) const
+{
+	std::set<boost::shared_ptr<Property> > ret;
+	std::for_each(_properties.begin(), _properties.end(), [&](std::pair<std::string, boost::shared_ptr<Property> > &pair){
+		if(pair.second->_is_continous)
+			ret.insert(pair.second);
+	});
+	return ret;
+}
+
+template<typename ObjT, typename ResultT, typename ResultComparatorT, typename ClassifierImplementor>
+std::set<boost::shared_ptr<Property> > Classifier<ObjT,ResultT,ResultComparatorT,ClassifierImplementor>::getDiscreteProperties(
+) const
+{
+	std::set<boost::shared_ptr<Property> > ret;
+	std::for_each(_properties.begin(), _properties.end(), [&](std::pair<std::string, boost::shared_ptr<Property> > &pair){
+		if(!pair.second->_is_continous)
+			ret.insert(pair.second);
+	});
+	return ret;
 }
 
 /*
